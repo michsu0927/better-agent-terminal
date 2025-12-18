@@ -134,15 +134,15 @@ export function TerminalPanel({ terminalId, isActive = true }: TerminalPanelProp
     if (!containerRef.current) return
 
     const settings = settingsStore.getSettings()
+    const colors = settingsStore.getTerminalColors()
 
-    // Create terminal instance
-    // Novel theme (macOS Terminal.app inspired)
+    // Create terminal instance with customizable colors
     const terminal = new Terminal({
       theme: {
-        background: '#1f1d1a',
-        foreground: '#dfdbc3',
-        cursor: '#dfdbc3',
-        cursorAccent: '#1f1d1a',
+        background: colors.background,
+        foreground: colors.foreground,
+        cursor: colors.cursor,
+        cursorAccent: colors.background,
         selectionBackground: '#5c5142',
         black: '#3b3228',
         red: '#cb6077',
@@ -345,11 +345,19 @@ export function TerminalPanel({ terminalId, isActive = true }: TerminalPanelProp
       window.electronAPI.pty.resize(terminalId, cols, rows)
     }, 100)
 
-    // Subscribe to settings changes for font updates
+    // Subscribe to settings changes for font and color updates
     const unsubscribeSettings = settingsStore.subscribe(() => {
       const newSettings = settingsStore.getSettings()
+      const newColors = settingsStore.getTerminalColors()
       terminal.options.fontSize = newSettings.fontSize
       terminal.options.fontFamily = settingsStore.getFontFamilyString()
+      terminal.options.theme = {
+        ...terminal.options.theme,
+        background: newColors.background,
+        foreground: newColors.foreground,
+        cursor: newColors.cursor,
+        cursorAccent: newColors.background
+      }
       fitAddon.fit()
       const { cols, rows } = terminal
       window.electronAPI.pty.resize(terminalId, cols, rows)

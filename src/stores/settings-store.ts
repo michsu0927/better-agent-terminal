@@ -1,5 +1,5 @@
-import type { AppSettings, ShellType, FontType } from '../types'
-import { FONT_OPTIONS } from '../types'
+import type { AppSettings, ShellType, FontType, ColorPresetId } from '../types'
+import { FONT_OPTIONS, COLOR_PRESETS } from '../types'
 
 type Listener = () => void
 
@@ -9,7 +9,11 @@ const defaultSettings: AppSettings = {
   fontSize: 14,
   fontFamily: 'sf-mono',
   customFontFamily: '',
-  theme: 'dark'
+  theme: 'dark',
+  colorPreset: 'novel',
+  customBackgroundColor: '#1f1d1a',
+  customForegroundColor: '#dfdbc3',
+  customCursorColor: '#dfdbc3'
 }
 
 class SettingsStore {
@@ -63,6 +67,43 @@ class SettingsStore {
     this.settings = { ...this.settings, customFontFamily }
     this.notify()
     this.save()
+  }
+
+  setColorPreset(colorPreset: ColorPresetId): void {
+    this.settings = { ...this.settings, colorPreset }
+    this.notify()
+    this.save()
+  }
+
+  setCustomBackgroundColor(customBackgroundColor: string): void {
+    this.settings = { ...this.settings, customBackgroundColor }
+    this.notify()
+    this.save()
+  }
+
+  setCustomForegroundColor(customForegroundColor: string): void {
+    this.settings = { ...this.settings, customForegroundColor }
+    this.notify()
+    this.save()
+  }
+
+  setCustomCursorColor(customCursorColor: string): void {
+    this.settings = { ...this.settings, customCursorColor }
+    this.notify()
+    this.save()
+  }
+
+  // Get terminal colors based on preset or custom settings
+  getTerminalColors(): { background: string; foreground: string; cursor: string } {
+    if (this.settings.colorPreset === 'custom') {
+      return {
+        background: this.settings.customBackgroundColor,
+        foreground: this.settings.customForegroundColor,
+        cursor: this.settings.customCursorColor
+      }
+    }
+    const preset = COLOR_PRESETS.find(p => p.id === this.settings.colorPreset)
+    return preset || COLOR_PRESETS[0]
   }
 
   // Get the actual CSS font-family string based on settings

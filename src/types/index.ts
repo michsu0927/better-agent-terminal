@@ -70,6 +70,61 @@ export const FONT_OPTIONS: { id: FontType; name: string; fontFamily: string }[] 
   { id: 'custom', name: 'Custom', fontFamily: 'monospace' },
 ];
 
+// Preset terminal color themes
+export const COLOR_PRESETS = [
+  {
+    id: 'novel',
+    name: 'Novel (Default)',
+    background: '#1f1d1a',
+    foreground: '#dfdbc3',
+    cursor: '#dfdbc3'
+  },
+  {
+    id: 'dracula',
+    name: 'Dracula',
+    background: '#282a36',
+    foreground: '#f8f8f2',
+    cursor: '#f8f8f2'
+  },
+  {
+    id: 'monokai',
+    name: 'Monokai',
+    background: '#272822',
+    foreground: '#f8f8f2',
+    cursor: '#f8f8f2'
+  },
+  {
+    id: 'solarized-dark',
+    name: 'Solarized Dark',
+    background: '#002b36',
+    foreground: '#839496',
+    cursor: '#839496'
+  },
+  {
+    id: 'nord',
+    name: 'Nord',
+    background: '#2e3440',
+    foreground: '#d8dee9',
+    cursor: '#d8dee9'
+  },
+  {
+    id: 'one-dark',
+    name: 'One Dark',
+    background: '#282c34',
+    foreground: '#abb2bf',
+    cursor: '#abb2bf'
+  },
+  {
+    id: 'custom',
+    name: 'Custom',
+    background: '#1f1d1a',
+    foreground: '#dfdbc3',
+    cursor: '#dfdbc3'
+  },
+] as const;
+
+export type ColorPresetId = typeof COLOR_PRESETS[number]['id'];
+
 export interface AppSettings {
   shell: ShellType;
   customShellPath: string;
@@ -77,4 +132,8 @@ export interface AppSettings {
   fontFamily: FontType;
   customFontFamily: string;
   theme: 'dark' | 'light';
+  colorPreset: ColorPresetId;
+  customBackgroundColor: string;
+  customForegroundColor: string;
+  customCursorColor: string;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { AppSettings, ShellType, FontType } from '../types'
-import { FONT_OPTIONS } from '../types'
+import type { AppSettings, ShellType, FontType, ColorPresetId } from '../types'
+import { FONT_OPTIONS, COLOR_PRESETS } from '../types'
 import { settingsStore } from '../stores/settings-store'
 
 interface SettingsPanelProps {
@@ -66,6 +66,24 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const handleCustomFontFamilyChange = (customFontFamily: string) => {
     settingsStore.setCustomFontFamily(customFontFamily)
   }
+
+  const handleColorPresetChange = (colorPreset: ColorPresetId) => {
+    settingsStore.setColorPreset(colorPreset)
+  }
+
+  const handleCustomBackgroundColorChange = (color: string) => {
+    settingsStore.setCustomBackgroundColor(color)
+  }
+
+  const handleCustomForegroundColorChange = (color: string) => {
+    settingsStore.setCustomForegroundColor(color)
+  }
+
+  const handleCustomCursorColorChange = (color: string) => {
+    settingsStore.setCustomCursorColor(color)
+  }
+
+  const terminalColors = settingsStore.getTerminalColors()
 
   return (
     <div className="settings-overlay" onClick={onClose}>
@@ -144,11 +162,85 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
               </div>
             )}
 
+            <div className="settings-group">
+              <label>Color Theme</label>
+              <select
+                value={settings.colorPreset}
+                onChange={e => handleColorPresetChange(e.target.value as ColorPresetId)}
+              >
+                {COLOR_PRESETS.map(preset => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {settings.colorPreset === 'custom' && (
+              <>
+                <div className="settings-group color-picker-group">
+                  <label>Background Color</label>
+                  <div className="color-input-wrapper">
+                    <input
+                      type="color"
+                      value={settings.customBackgroundColor}
+                      onChange={e => handleCustomBackgroundColorChange(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      value={settings.customBackgroundColor}
+                      onChange={e => handleCustomBackgroundColorChange(e.target.value)}
+                      placeholder="#1f1d1a"
+                    />
+                  </div>
+                </div>
+
+                <div className="settings-group color-picker-group">
+                  <label>Text Color</label>
+                  <div className="color-input-wrapper">
+                    <input
+                      type="color"
+                      value={settings.customForegroundColor}
+                      onChange={e => handleCustomForegroundColorChange(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      value={settings.customForegroundColor}
+                      onChange={e => handleCustomForegroundColorChange(e.target.value)}
+                      placeholder="#dfdbc3"
+                    />
+                  </div>
+                </div>
+
+                <div className="settings-group color-picker-group">
+                  <label>Cursor Color</label>
+                  <div className="color-input-wrapper">
+                    <input
+                      type="color"
+                      value={settings.customCursorColor}
+                      onChange={e => handleCustomCursorColorChange(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      value={settings.customCursorColor}
+                      onChange={e => handleCustomCursorColorChange(e.target.value)}
+                      placeholder="#dfdbc3"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="settings-group font-preview">
               <label>Preview</label>
               <div
                 className="font-preview-box"
-                style={{ fontFamily: settingsStore.getFontFamilyString(), fontSize: settings.fontSize }}
+                style={{
+                  fontFamily: settingsStore.getFontFamilyString(),
+                  fontSize: settings.fontSize,
+                  backgroundColor: terminalColors.background,
+                  color: terminalColors.foreground
+                }}
               >
                 $ echo "Hello World" 你好世界 0123456789
               </div>
