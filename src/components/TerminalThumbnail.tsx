@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { TerminalInstance } from '../types'
 import { ActivityIndicator } from './ActivityIndicator'
+import { settingsStore } from '../stores/settings-store'
 
 // Global preview cache - persists across component unmounts
 const previewCache = new Map<string, string>()
 
-// Strip all ANSI escape sequences (not just colors)
+// Strip all ANSI escape sequences and problematic characters
 const stripAnsi = (str: string): string => {
   return str
     // CSI sequences: \x1b[ followed by params and command char
@@ -23,6 +24,12 @@ const stripAnsi = (str: string): string => {
     .replace(/\r/g, '')
     // Any remaining single-char escapes
     .replace(/\x1b./g, '')
+    // Private Use Area characters (Powerline, Nerd Fonts icons) - causes box characters
+    .replace(/[\uE000-\uF8FF]/g, '')
+    // Braille patterns (often used for terminal graphics)
+    .replace(/[\u2800-\u28FF]/g, '')
+    // Box drawing characters that may not render well at small sizes
+    .replace(/[\u2500-\u257F]/g, '')
 }
 
 // Global listener setup - only once
@@ -49,6 +56,7 @@ interface TerminalThumbnailProps {
 
 export function TerminalThumbnail({ terminal, isActive, onClick }: TerminalThumbnailProps) {
   const [preview, setPreview] = useState<string>(previewCache.get(terminal.id) || '')
+  const [fontFamily, setFontFamily] = useState<string>(settingsStore.getFontFamilyString())
   const isClaudeCode = terminal.type === 'claude-code'
 
   useEffect(() => {
@@ -60,7 +68,15 @@ export function TerminalThumbnail({ terminal, isActive, onClick }: TerminalThumb
       setPreview(cached)
     }, 500)
 
-    return () => clearInterval(interval)
+    // Subscribe to settings changes for font updates
+    const unsubscribeSettings = settingsStore.subscribe(() => {
+      setFontFamily(settingsStore.getFontFamilyString())
+    })
+
+    return () => {
+      clearInterval(interval)
+      unsubscribeSettings()
+    }
   }, [terminal.id])
 
   return (
@@ -75,7 +91,7 @@ export function TerminalThumbnail({ terminal, isActive, onClick }: TerminalThumb
         </div>
         <ActivityIndicator terminalId={terminal.id} size="small" />
       </div>
-      <div className="thumbnail-preview">
+      <div className="thumbnail-preview" style={{ fontFamily }}>
         {preview || '$ _'}
       </div>
     </div>
