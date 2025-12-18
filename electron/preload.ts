@@ -34,6 +34,10 @@ const electronAPI = {
   },
   shell: {
     openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url)
+  },
+  update: {
+    check: () => ipcRenderer.invoke('update:check'),
+    getVersion: () => ipcRenderer.invoke('update:get-version')
   }
 }
 
