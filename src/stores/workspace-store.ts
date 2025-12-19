@@ -98,7 +98,7 @@ class WorkspaceStore {
   }
 
   // Terminal actions
-  addTerminal(workspaceId: string, type: 'terminal' | 'claude-code'): TerminalInstance {
+  addTerminal(workspaceId: string, type: 'terminal' | 'code-agent'): TerminalInstance {
     const workspace = this.state.workspaces.find(w => w.id === workspaceId)
     if (!workspace) throw new Error('Workspace not found')
 
@@ -110,14 +110,14 @@ class WorkspaceStore {
       id: uuidv4(),
       workspaceId,
       type,
-      title: type === 'claude-code' ? 'Code Agent' : `Terminal ${existingTerminals.length + 1}`,
+      title: type === 'code-agent' ? 'Code Agent' : `Terminal ${existingTerminals.length + 1}`,
       cwd: workspace.folderPath,
       scrollbackBuffer: [],
       lastActivityTime: Date.now()
     }
 
-    // Only auto-focus Claude Code, keep current focus for regular terminals
-    const shouldFocus = type === 'claude-code' || !this.state.focusedTerminalId
+    // Only auto-focus Code Agent, keep current focus for regular terminals
+    const shouldFocus = type === 'code-agent' || !this.state.focusedTerminalId
 
     this.state = {
       ...this.state,
@@ -186,14 +186,34 @@ class WorkspaceStore {
     this.notify()
   }
 
+  // Mark agent command as sent for a terminal
+  markAgentCommandSent(id: string): void {
+    this.state = {
+      ...this.state,
+      terminals: this.state.terminals.map(t =>
+        t.id === id ? { ...t, agentCommandSent: true } : t
+      )
+    }
+  }
+
+  // Mark terminal as having user input
+  markHasUserInput(id: string): void {
+    this.state = {
+      ...this.state,
+      terminals: this.state.terminals.map(t =>
+        t.id === id ? { ...t, hasUserInput: true } : t
+      )
+    }
+  }
+
   // Get terminals for current workspace
   getWorkspaceTerminals(workspaceId: string): TerminalInstance[] {
     return this.state.terminals.filter(t => t.workspaceId === workspaceId)
   }
 
-  getClaudeCodeTerminal(workspaceId: string): TerminalInstance | undefined {
+  getCodeAgentTerminal(workspaceId: string): TerminalInstance | undefined {
     return this.state.terminals.find(
-      t => t.workspaceId === workspaceId && t.type === 'claude-code'
+      t => t.workspaceId === workspaceId && t.type === 'code-agent'
     )
   }
 

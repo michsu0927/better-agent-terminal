@@ -17,7 +17,7 @@ try {
 
 interface PtyInstance {
   process: any // IPty or ChildProcess
-  type: 'terminal' | 'claude-code'
+  type: 'terminal' | 'code-agent'
   cwd: string
   usePty: boolean
 }

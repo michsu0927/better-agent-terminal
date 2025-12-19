@@ -26,41 +26,32 @@ async function getShellFromSettings(): Promise<string | undefined> {
 export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActive }: WorkspaceViewProps) {
   const [showCloseConfirm, setShowCloseConfirm] = useState<string | null>(null)
 
-  const claudeCode = terminals.find(t => t.type === 'claude-code')
+  const codeAgent = terminals.find(t => t.type === 'code-agent')
   const regularTerminals = terminals.filter(t => t.type === 'terminal')
 
   const focusedTerminal = terminals.find(t => t.id === focusedTerminalId)
-  const isClaudeCodeFocused = focusedTerminal?.type === 'claude-code'
+  const isCodeAgentFocused = focusedTerminal?.type === 'code-agent'
 
-  // Initialize Claude Code terminal when workspace loads
+  // Initialize Code Agent terminal when workspace loads
   useEffect(() => {
-    if (!claudeCode) {
+    if (!codeAgent) {
       const createClaudeCode = async () => {
-        const terminal = workspaceStore.addTerminal(workspace.id, 'claude-code')
+        const terminal = workspaceStore.addTerminal(workspace.id, 'code-agent')
         const shell = await getShellFromSettings()
         window.electronAPI.pty.create({
           id: terminal.id,
           cwd: workspace.folderPath,
-          type: 'claude-code',
+          type: 'code-agent',
           shell
         })
-
-        // Auto-execute agent command if enabled
-        const agentCommand = settingsStore.getAgentCommand()
-        if (agentCommand) {
-          // Wait for shell to initialize before sending command
-          setTimeout(() => {
-            window.electronAPI.pty.write(terminal.id, agentCommand + '\r')
-          }, 500)
-        }
       }
       createClaudeCode()
     }
-  }, [workspace.id, claudeCode])
+  }, [workspace.id, codeAgent])
 
   // Auto-create first terminal if none exists
   useEffect(() => {
-    if (regularTerminals.length === 0 && claudeCode) {
+    if (regularTerminals.length === 0 && codeAgent) {
       const createTerminal = async () => {
         const terminal = workspaceStore.addTerminal(workspace.id, 'terminal')
         const shell = await getShellFromSettings()
@@ -73,14 +64,14 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
       }
       createTerminal()
     }
-  }, [workspace.id, regularTerminals.length, claudeCode])
+  }, [workspace.id, regularTerminals.length, codeAgent])
 
   // Set default focus - only for active workspace
   useEffect(() => {
-    if (isActive && !focusedTerminalId && claudeCode) {
-      workspaceStore.setFocusedTerminal(claudeCode.id)
+    if (isActive && !focusedTerminalId && codeAgent) {
+      workspaceStore.setFocusedTerminal(codeAgent.id)
     }
-  }, [isActive, focusedTerminalId, claudeCode])
+  }, [isActive, focusedTerminalId, codeAgent])
 
   const handleAddTerminal = useCallback(async () => {
     const terminal = workspaceStore.addTerminal(workspace.id, 'terminal')
@@ -95,7 +86,7 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
 
   const handleCloseTerminal = useCallback((id: string) => {
     const terminal = terminals.find(t => t.id === id)
-    if (terminal?.type === 'claude-code') {
+    if (terminal?.type === 'code-agent') {
       setShowCloseConfirm(id)
     } else {
       window.electronAPI.pty.kill(id)
@@ -126,10 +117,10 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
   }, [])
 
   // Determine what to show in thumbnail bar
-  const mainTerminal = focusedTerminal || claudeCode
-  const thumbnailTerminals = isClaudeCodeFocused
+  const mainTerminal = focusedTerminal || codeAgent
+  const thumbnailTerminals = isCodeAgentFocused
     ? regularTerminals
-    : (claudeCode ? [claudeCode] : [])
+    : (codeAgent ? [codeAgent] : [])
 
   return (
     <div className="workspace-view">
@@ -142,8 +133,8 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
           >
             <div className="main-panel">
               <div className="main-panel-header">
-                <div className={`main-panel-title ${terminal.type === 'claude-code' ? 'claude-code' : ''}`}>
-                  {terminal.type === 'claude-code' && <span>✦</span>}
+                <div className={`main-panel-title ${terminal.type === 'code-agent' ? 'code-agent' : ''}`}>
+                  {terminal.type === 'code-agent' && <span>✦</span>}
                   <span>{terminal.title}</span>
                 </div>
                 <div className="main-panel-actions">
@@ -171,6 +162,7 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
                 <TerminalPanel
                   terminalId={terminal.id}
                   isActive={terminal.id === mainTerminal?.id}
+                  terminalType={terminal.type}
                 />
               </div>
             </div>
@@ -182,8 +174,8 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
         terminals={thumbnailTerminals}
         focusedTerminalId={focusedTerminalId}
         onFocus={handleFocus}
-        onAddTerminal={isClaudeCodeFocused ? handleAddTerminal : undefined}
-        showAddButton={isClaudeCodeFocused}
+        onAddTerminal={isCodeAgentFocused ? handleAddTerminal : undefined}
+        showAddButton={isCodeAgentFocused}
       />
 
       {showCloseConfirm && (

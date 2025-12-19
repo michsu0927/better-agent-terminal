@@ -21,13 +21,16 @@ export const PRESET_ROLES = [
 export interface TerminalInstance {
   id: string;
   workspaceId: string;
-  type: 'terminal' | 'claude-code';
+  type: 'terminal' | 'code-agent';
   title: string;
   alias?: string;
   pid?: number;
   cwd: string;
   scrollbackBuffer: string[];
   lastActivityTime?: number;
+  // Agent auto-command tracking
+  agentCommandSent?: boolean;
+  hasUserInput?: boolean;
 }
 
 export interface AppState {
@@ -41,7 +44,7 @@ export interface AppState {
 export interface CreatePtyOptions {
   id: string;
   cwd: string;
-  type: 'terminal' | 'claude-code';
+  type: 'terminal' | 'code-agent';
   shell?: string;
 }
 

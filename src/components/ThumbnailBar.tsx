@@ -16,8 +16,8 @@ export function ThumbnailBar({
   onAddTerminal,
   showAddButton
 }: ThumbnailBarProps) {
-  const label = terminals.length > 0 && terminals[0].type === 'claude-code'
-    ? 'Claude Code'
+  const label = terminals.length > 0 && terminals[0].type === 'code-agent'
+    ? 'Code Agent'
     : 'Terminals'
 
   return (

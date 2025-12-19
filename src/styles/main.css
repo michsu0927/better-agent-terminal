@@ -390,7 +390,7 @@ body {
   gap: 8px;
 }
 
-.main-panel-title.claude-code {
+.main-panel-title.code-agent {
   color: var(--claude-accent);
 }
 
@@ -473,7 +473,7 @@ body {
   border-width: 2px;
 }
 
-.thumbnail.claude-code {
+.thumbnail.code-agent {
   border-color: var(--claude-accent);
 }
 
@@ -492,7 +492,7 @@ body {
   gap: 4px;
 }
 
-.thumbnail-title.claude-code {
+.thumbnail-title.code-agent {
   color: var(--claude-accent);
 }
 

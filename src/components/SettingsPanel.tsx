@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { AppSettings, ShellType, FontType, ColorPresetId, AgentCommandType } from '../types'
 import { FONT_OPTIONS, COLOR_PRESETS, AGENT_COMMAND_OPTIONS } from '../types'
 import { settingsStore } from '../stores/settings-store'
+import { workspaceStore } from '../stores/workspace-store'
 
 interface SettingsPanelProps {
   onClose: () => void
@@ -85,6 +86,23 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
   const handleAgentAutoCommandChange = (enabled: boolean) => {
     settingsStore.setAgentAutoCommand(enabled)
+
+    // If enabling, send command to all agent terminals that have no user input yet
+    if (enabled) {
+      setTimeout(() => {
+        const agentCommand = settingsStore.getAgentCommand()
+        if (agentCommand) {
+          const state = workspaceStore.getState()
+          const agentTerminals = state.terminals.filter(
+            t => t.type === 'code-agent' && !t.hasUserInput && !t.agentCommandSent
+          )
+          agentTerminals.forEach(terminal => {
+            window.electronAPI.pty.write(terminal.id, agentCommand + '\r')
+            workspaceStore.markAgentCommandSent(terminal.id)
+          })
+        }
+      }, 100)
+    }
   }
 
   const handleAgentCommandTypeChange = (type: AgentCommandType) => {
