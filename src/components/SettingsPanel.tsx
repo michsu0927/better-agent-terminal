@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { AppSettings, ShellType, FontType, ColorPresetId } from '../types'
-import { FONT_OPTIONS, COLOR_PRESETS } from '../types'
+import type { AppSettings, ShellType, FontType, ColorPresetId, AgentCommandType } from '../types'
+import { FONT_OPTIONS, COLOR_PRESETS, AGENT_COMMAND_OPTIONS } from '../types'
 import { settingsStore } from '../stores/settings-store'
 
 interface SettingsPanelProps {
@@ -81,6 +81,18 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
   const handleCustomCursorColorChange = (color: string) => {
     settingsStore.setCustomCursorColor(color)
+  }
+
+  const handleAgentAutoCommandChange = (enabled: boolean) => {
+    settingsStore.setAgentAutoCommand(enabled)
+  }
+
+  const handleAgentCommandTypeChange = (type: AgentCommandType) => {
+    settingsStore.setAgentCommandType(type)
+  }
+
+  const handleAgentCustomCommandChange = (command: string) => {
+    settingsStore.setAgentCustomCommand(command)
   }
 
   const terminalColors = settingsStore.getTerminalColors()
@@ -245,6 +257,56 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 $ echo "Hello World" 你好世界 0123456789
               </div>
             </div>
+          </div>
+
+          <div className="settings-section">
+            <h3>Agent</h3>
+            <div className="settings-group checkbox-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={settings.agentAutoCommand}
+                  onChange={e => handleAgentAutoCommandChange(e.target.checked)}
+                />
+                <span>Auto-execute command when agent starts</span>
+              </label>
+            </div>
+
+            {settings.agentAutoCommand && (
+              <>
+                <div className="settings-group">
+                  <label>Agent Command</label>
+                  <select
+                    value={settings.agentCommandType}
+                    onChange={e => handleAgentCommandTypeChange(e.target.value as AgentCommandType)}
+                  >
+                    {AGENT_COMMAND_OPTIONS.map(option => (
+                      <option key={option.id} value={option.id}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {settings.agentCommandType === 'custom' && (
+                  <div className="settings-group">
+                    <label>Custom Command</label>
+                    <input
+                      type="text"
+                      value={settings.agentCustomCommand}
+                      onChange={e => handleAgentCustomCommandChange(e.target.value)}
+                      placeholder="e.g., claude --model opus"
+                    />
+                  </div>
+                )}
+
+                <div className="settings-group">
+                  <label className="hint">
+                    Command to run: {settingsStore.getAgentCommand() || '(none)'}
+                  </label>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

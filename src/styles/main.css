@@ -801,6 +801,37 @@ body {
   text-transform: uppercase;
 }
 
+/* Checkbox group styles */
+.settings-group.checkbox-group {
+  margin-bottom: 12px;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  font-size: 13px;
+}
+
+.settings-group label.hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 4px;
+}
+
 .settings-footer {
   padding: 12px 20px;
   border-top: 1px solid var(--border-color);

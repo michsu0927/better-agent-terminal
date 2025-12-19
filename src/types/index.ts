@@ -57,6 +57,15 @@ export interface PtyExit {
 
 export type ShellType = 'auto' | 'pwsh' | 'powershell' | 'cmd' | 'custom';
 
+export type AgentCommandType = 'claude' | 'codex' | 'gemini' | 'custom';
+
+export const AGENT_COMMAND_OPTIONS: { id: AgentCommandType; name: string; command: string }[] = [
+  { id: 'claude', name: 'Claude Code', command: 'claude' },
+  { id: 'codex', name: 'Codex CLI', command: 'codex' },
+  { id: 'gemini', name: 'Gemini CLI', command: 'gemini' },
+  { id: 'custom', name: 'Custom', command: '' },
+];
+
 export type FontType = 'system' | 'sf-mono' | 'menlo' | 'consolas' | 'monaco' | 'fira-code' | 'jetbrains-mono' | 'custom';
 
 export const FONT_OPTIONS: { id: FontType; name: string; fontFamily: string }[] = [
@@ -136,4 +145,8 @@ export interface AppSettings {
   customBackgroundColor: string;
   customForegroundColor: string;
   customCursorColor: string;
+  // Agent auto-command settings
+  agentAutoCommand: boolean;
+  agentCommandType: AgentCommandType;
+  agentCustomCommand: string;
 }

@@ -44,6 +44,15 @@ export function WorkspaceView({ workspace, terminals, focusedTerminalId, isActiv
           type: 'claude-code',
           shell
         })
+
+        // Auto-execute agent command if enabled
+        const agentCommand = settingsStore.getAgentCommand()
+        if (agentCommand) {
+          // Wait for shell to initialize before sending command
+          setTimeout(() => {
+            window.electronAPI.pty.write(terminal.id, agentCommand + '\r')
+          }, 500)
+        }
       }
       createClaudeCode()
     }

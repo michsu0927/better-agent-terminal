@@ -1,5 +1,5 @@
-import type { AppSettings, ShellType, FontType, ColorPresetId } from '../types'
-import { FONT_OPTIONS, COLOR_PRESETS } from '../types'
+import type { AppSettings, ShellType, FontType, ColorPresetId, AgentCommandType } from '../types'
+import { FONT_OPTIONS, COLOR_PRESETS, AGENT_COMMAND_OPTIONS } from '../types'
 
 type Listener = () => void
 
@@ -13,7 +13,10 @@ const defaultSettings: AppSettings = {
   colorPreset: 'novel',
   customBackgroundColor: '#1f1d1a',
   customForegroundColor: '#dfdbc3',
-  customCursorColor: '#dfdbc3'
+  customCursorColor: '#dfdbc3',
+  agentAutoCommand: false,
+  agentCommandType: 'claude',
+  agentCustomCommand: ''
 }
 
 class SettingsStore {
@@ -91,6 +94,34 @@ class SettingsStore {
     this.settings = { ...this.settings, customCursorColor }
     this.notify()
     this.save()
+  }
+
+  setAgentAutoCommand(agentAutoCommand: boolean): void {
+    this.settings = { ...this.settings, agentAutoCommand }
+    this.notify()
+    this.save()
+  }
+
+  setAgentCommandType(agentCommandType: AgentCommandType): void {
+    this.settings = { ...this.settings, agentCommandType }
+    this.notify()
+    this.save()
+  }
+
+  setAgentCustomCommand(agentCustomCommand: string): void {
+    this.settings = { ...this.settings, agentCustomCommand }
+    this.notify()
+    this.save()
+  }
+
+  // Get the agent command to execute
+  getAgentCommand(): string | null {
+    if (!this.settings.agentAutoCommand) return null
+    if (this.settings.agentCommandType === 'custom') {
+      return this.settings.agentCustomCommand || null
+    }
+    const option = AGENT_COMMAND_OPTIONS.find(o => o.id === this.settings.agentCommandType)
+    return option?.command || null
   }
 
   // Get terminal colors based on preset or custom settings
