@@ -76,13 +76,23 @@ export class PtyManager {
 
     if (ptyAvailable && pty) {
       try {
-        // Set UTF-8 environment variables
+        // Set UTF-8 and terminal environment variables
         const envWithUtf8 = {
           ...process.env,
+          // UTF-8 encoding
           LANG: 'en_US.UTF-8',
           LC_ALL: 'en_US.UTF-8',
           PYTHONIOENCODING: 'utf-8',
-          PYTHONUTF8: '1'
+          PYTHONUTF8: '1',
+          // Terminal capabilities - let apps know we are a real PTY
+          TERM: 'xterm-256color',
+          COLORTERM: 'truecolor',
+          TERM_PROGRAM: 'better-terminal',
+          TERM_PROGRAM_VERSION: '1.0',
+          // Force color output
+          FORCE_COLOR: '3',
+          // Ensure not detected as CI environment
+          CI: ''
         }
 
         const ptyProcess = pty.spawn(shell, args, {
@@ -128,13 +138,21 @@ export class PtyManager {
           )
         }
 
-        // Set UTF-8 environment variables
+        // Set UTF-8 and terminal environment variables (child_process fallback)
         const envWithUtf8 = {
           ...process.env,
+          // UTF-8 encoding
           LANG: 'en_US.UTF-8',
           LC_ALL: 'en_US.UTF-8',
           PYTHONIOENCODING: 'utf-8',
-          PYTHONUTF8: '1'
+          PYTHONUTF8: '1',
+          // Terminal capabilities (limited in child_process mode)
+          TERM: 'xterm-256color',
+          COLORTERM: 'truecolor',
+          TERM_PROGRAM: 'better-terminal',
+          TERM_PROGRAM_VERSION: '1.0',
+          FORCE_COLOR: '3',
+          CI: ''
         }
 
         const childProcess = spawn(shell, shellArgs, {

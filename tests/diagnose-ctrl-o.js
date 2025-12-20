@@ -181,9 +181,16 @@ async function startTerminal(pty) {
         cwd: testWorkspace,
         env: {
           ...process.env,
-          TERM: 'xterm-256color',
+          // UTF-8 encoding
           LANG: 'en_US.UTF-8',
-          COLORTERM: 'truecolor'
+          LC_ALL: 'en_US.UTF-8',
+          // Terminal capabilities - let Claude know we are a real PTY
+          TERM: 'xterm-256color',
+          COLORTERM: 'truecolor',
+          TERM_PROGRAM: 'better-terminal',
+          TERM_PROGRAM_VERSION: '1.0',
+          FORCE_COLOR: '3',
+          CI: ''
         }
       }),
       output: '',
